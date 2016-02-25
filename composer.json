@@ -1,0 +1,26 @@
+{
+  "name": "mr/mr_tinypng",
+  "description": "",
+  "type": "typo3-cms-extension",
+  "keywords": [
+    "TYPO3 CMS"
+  ],
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Sascha Heilmeier",
+      "email": "s.heilmeier@misterknister.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Scarbous\\MrTinypng\\": "Classes/"
+    }
+  },
+  "config": {
+    "vendor-dir": "Resources/Private/Libraries"
+  },
+  "require": {
+
+  }
+}

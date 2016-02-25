@@ -1,0 +1,5 @@
+plugin.tx_mrtinypng {
+    settings {
+        API_KEY = Z6YBCz8KS0tmltjRCXmvaZim608eqmbg
+    }
+}
