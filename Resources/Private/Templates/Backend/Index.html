@@ -1,0 +1,62 @@
+{namespace mr=Scarbous\MrTinypng\ViewHelpers}
+
+<f:layout name="Default"/>
+
+<f:section name="content">
+
+    <h1 class="text-center" style="margin-top:0;"><img src="{settings.publicResourcesPath}Images/mr.icon.svg" width="30"
+                                                       height="30"
+                                                       style="vertical-align: middle; margin-right: 15px;"></h1>
+
+    <ul class="list-group">
+        <f:if condition="{tinypng.validate}==1">
+            <f:then>
+                <li class="list-group-item list-group-item-success">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Tinypng API conection
+                </li>
+            </f:then>
+            <f:else>
+                <li class="list-group-item list-group-item-danger">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Tinypng API: {tinypng.validate}
+                </li>
+            </f:else>
+        </f:if>
+        <li class="list-group-item list-group-item-success">
+            <span class="glyphicon glyphicon-compressed" aria-hidden="true"></span>
+            You save: <b>{reduction -> mr:Format.Bytes()}</b>
+        </li>
+        <li class="list-group-item list-group-item-info">
+            <span class="glyphicon glyphicon-scale" aria-hidden="true"></span>
+            Tinypng API count: <b>{tinypng.compressionCount}</b>
+        </li>
+    </ul>
+
+    <div class="progress" id="progressbar">
+        <div class="progress-bar progress-bar-success" title="{shrunkenFiles} shrunken"
+             aria-valuenow="{shrunkenFiles}"
+             aria-valuemin="0" aria-valuemax="100">
+            <span class="sr-only">{shrunkenFiles} shrunken</span>
+        </div>
+        <div class="progress-bar progress-bar-warning" title="{notShrunkenFiles} not shrunken"
+             aria-valuenow="{notShrunkenFiles}" aria-valuemin="0" aria-valuemax="100">
+            <span class="sr-only">{notShrunkenFiles} not shrunken</span>
+        </div>
+    </div>
+
+    <script>
+        jQuery(document).ready(function () {
+            jQuery('[data-toggle="tooltip"]').tooltip();
+
+            var progressbarCount = 0;
+            jQuery('#progressbar .progress-bar').each(function () {
+                progressbarCount += parseInt(jQuery(this).attr('aria-valuenow'));
+            });
+            console.log(progressbarCount);
+            jQuery('#progressbar .progress-bar').each(function () {
+                jQuery(this).css({
+                    'width': 100 / progressbarCount * parseInt(jQuery(this).attr('aria-valuenow')) + '%'
+                });
+            });
+        });
+    </script>
+</f:section>

@@ -8,24 +8,30 @@ require_once(
 
 $extConfig = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$_EXTKEY]);
 
-if(!empty($extConfig['tinypngApiKey'])) {
+if (!empty($extConfig['tinypngApiKey'])) {
 	try {
 		\Tinify\setKey($extConfig['tinypngApiKey']);
 		\Tinify\validate();
 
-		$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'] = [
-			\TYPO3\CMS\Core\Resource\Processing\LocalCropScaleMaskHelper::class => [
-				'className' => \Scarbous\MrTinypng\CMS\Core\Resource\Processing\LocalCropScaleMaskHelper::class
-			],
-			\TYPO3\CMS\Core\Resource\ProcessedFile::class => [
-				'className' => \Scarbous\MrTinypng\CMS\Core\Resource\ProcessedFile::class
-			]
-		];
+		$signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
 
-	} catch(\Tinify\Exception $e) {
-		throw new TYPO3\CMS\Install\Controller\Exception\RedirectException(
-			'Tinify-API: '.$e->getMessage().' | Pleas check your API-Key',
-			'1456417768'
+		$signalSlotDispatcher->connect(
+			\TYPO3\CMS\Core\Resource\ResourceStorage::class,
+			\TYPO3\CMS\Core\Resource\Service\FileProcessingService::SIGNAL_PreFileProcess,
+			\Scarbous\MrTinypng\SignalSlots\FileProcessingService::class,
+			'preFileProcess'
 		);
+
+		$signalSlotDispatcher->connect(
+			\TYPO3\CMS\Core\Resource\ResourceStorage::class,
+			\TYPO3\CMS\Core\Resource\Service\FileProcessingService::SIGNAL_PostFileProcess,
+			\Scarbous\MrTinypng\SignalSlots\FileProcessingService::class,
+			'postFileProcess'
+		);
+
+	} catch (\Tinify\Exception $e) {
+
 	}
 }
+
+

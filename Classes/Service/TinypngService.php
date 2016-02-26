@@ -23,7 +23,26 @@ use TYPO3\CMS\Core\SingletonInterface;
  */
 class TinypngService implements SingletonInterface
 {
+	/**
+	 * Validate API
+	 *
+	 * @return mixed
+	 */
+	function validate(){
+		try {
+			return \Tinify\validate();
+		} catch(\Tinify\Exception $e) {
+			return $e->getMessage();
+		}
+	}
 
+	/**
+	 * Get compression count
+	 * @return mixed
+	 */
+	function compressionCount(){
+		return \Tinify\compressionCount();
+	}
 	/**
 	 * Shrinks the Image
 	 *

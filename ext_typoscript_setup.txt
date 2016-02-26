@@ -1,0 +1,5 @@
+module.tx_mrtinypng {
+	settings{
+		publicResourcesPath = /typo3conf/ext/mr_tinypng/Resources/Public/
+	}
+}
