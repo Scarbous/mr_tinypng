@@ -8,15 +8,11 @@ $EM_CONF[$_EXTKEY] = array(
     'author_company' => '',
     'state' => 'beta',
     'clearCacheOnLoad' => 0,
-    'version' => '0.2.0',
+    'version' => '0.3.0',
     'constraints' => array(
 		'depends' => array (
 			'typo3' => '6.2.0-7.6.99',
 			'php' => '5.5.0-7.0.99'
 		),
-        'conflicts' => array(
-        ),
-        'suggests' => array(
-        ),
     ),
 );
