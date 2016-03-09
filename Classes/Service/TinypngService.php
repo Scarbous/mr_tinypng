@@ -15,6 +15,7 @@ namespace Scarbous\MrTinypng\Service;
  */
 
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TinypngService
@@ -54,8 +55,8 @@ class TinypngService implements SingletonInterface
 	public function shrinkImage($source, $target = NULL)
 	{
 		$target = $target === NULL ? $source : $target;
-		$sourceData = file_get_contents($source);
-		$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();;
+		$sourceData = GeneralUtility::getURL($source);
+		$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();
 		file_put_contents($target, $targetData);
 		$reduction = strlen($sourceData) - strlen($targetData);
 		unset($sourceData,$targetData);

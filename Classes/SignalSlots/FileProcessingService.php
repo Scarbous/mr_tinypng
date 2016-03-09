@@ -14,137 +14,141 @@ namespace Scarbous\MrTinypng\SignalSlots;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\Utility\GeneralUtility,
-	TYPO3\CMS\Core\Resource,
-	TYPO3\CMS\Core\Resource\ProcessedFileRepository,
-	Scarbous\MrTinypng\Service\TinypngService;
+use Scarbous\MrTinypng\Service\TinypngService;
+use TYPO3\CMS\Core\Resource;
+use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * This Class does the compression
  *
  * @package Scarbous\MrTinypng\SignalSlots
- * @author Sascha Heilmeier <s.heilmeier@misterknister.com>
+ * @author  Sascha Heilmeier <s.heilmeier@misterknister.com>
  */
 class FileProcessingService
 {
-	/**
-	 * The TinypngService
-	 *
-	 * @var \Scarbous\MrTinypng\Service\TinypngService
-	 * @inject
-	 */
-	protected $tinypngService;
+    /**
+     * The TinypngService
+     *
+     * @var \Scarbous\MrTinypng\Service\TinypngService
+     * @inject
+     */
+    protected $tinypngService;
 
-	/**
-	 * The ProcessedFileRepository
-	 *
-	 * @var \TYPO3\CMS\Core\Resource\ProcessedFileRepository
-	 * @inject
-	 */
-	protected $processedFileRepository;
+    /**
+     * The ProcessedFileRepository
+     *
+     * @var \TYPO3\CMS\Core\Resource\ProcessedFileRepository
+     * @inject
+     */
+    protected $processedFileRepository;
 
-	/**
-	 * Should it shrink
-	 *
-	 * @var bool
-	 */
-	static protected $shrink = false;
+    /**
+     * Should it shrink
+     *
+     * @var bool
+     */
+    static protected $shrink = false;
 
-	/**
-	 * Inject the TinypngService
-	 * @param TinypngService $tinypngService
-	 *
-	 * @return void
-	 */
-	function injectTinypngService(TinypngService $tinypngService)
-	{
-		$this->tinypngService = $tinypngService;
-	}
+    /**
+     * Inject the TinypngService
+     *
+     * @param TinypngService $tinypngService
+     *
+     * @return void
+     */
+    function injectTinypngService(TinypngService $tinypngService)
+    {
+        $this->tinypngService = $tinypngService;
+    }
 
-	/**
-	 * Inject the ProcessedFileRepository
-	 * @param \TYPO3\CMS\Core\Resource\ProcessedFileRepository $processedFileRepository
-	 *
-	 * @return void
-	 */
-	public function injectProcessedFileRepository(ProcessedFileRepository $processedFileRepository)
-	{
-		$this->processedFileRepository = $processedFileRepository;
-	}
+    /**
+     * Inject the ProcessedFileRepository
+     *
+     * @param \TYPO3\CMS\Core\Resource\ProcessedFileRepository $processedFileRepository
+     *
+     * @return void
+     */
+    public function injectProcessedFileRepository(ProcessedFileRepository $processedFileRepository)
+    {
+        $this->processedFileRepository = $processedFileRepository;
+    }
 
-	/**
-	 * Pre
-	 *
-	 * @param Resource\Service\FileProcessingService $fileProcessingService
-	 * @param Resource\Driver\DriverInterface $driver
-	 * @param Resource\ProcessedFile $processedFile
-	 * @param Resource\FileInterface $file
-	 * @param string $context
-	 * @param array $configuration
-	 *
-	 * @return void
-	 */
-	function preFileProcess(
-		Resource\Service\FileProcessingService $fileProcessingService,
-		Resource\Driver\DriverInterface $driver,
-		Resource\ProcessedFile $processedFile,
-		Resource\FileInterface $file,
-		$context,
-		array $configuration
-	) {
-		// optimize only FE images
-		if ($context == 'Image.CropScaleMask' && TYPO3_MODE !== 'BE') {
-			$properties = $processedFile->getProperties();
-			if (
-				!$processedFile->isProcessed() ||
-				$processedFile->isNew() ||
-				!$processedFile->exists() ||
-				$processedFile->isOutdated() ||
-				$properties['tinypng'] == 0
-			) {
-				$properties['tinypng'] = 0;
-				$processedFile->updateProperties($properties);
-				$this->processedFileRepository->update($processedFile);
-				self::$shrink = true;
-			} else {
-				self::$shrink = false;
-			}
-		}
-	}
+    /**
+     * Pre
+     *
+     * @param Resource\Service\FileProcessingService $fileProcessingService
+     * @param Resource\Driver\DriverInterface        $driver
+     * @param Resource\ProcessedFile                 $processedFile
+     * @param Resource\FileInterface                 $file
+     * @param string                                 $context
+     * @param array                                  $configuration
+     *
+     * @return void
+     */
+    function preFileProcess(
+        Resource\Service\FileProcessingService $fileProcessingService,
+        Resource\Driver\DriverInterface $driver,
+        Resource\ProcessedFile $processedFile,
+        Resource\FileInterface $file,
+        $context,
+        array $configuration
+    ) {
+        $testi = $file->getMimeType();
+        // optimize only FE images
+        if ($context == 'Image.CropScaleMask' && TYPO3_MODE !== 'BE' &&
+            ($file->getMimeType() == 'image/png' || $file->getMimeType() == 'image/jpeg')) {
+            $properties = $processedFile->getProperties();
+            if (
+                !$processedFile->isProcessed() ||
+                $processedFile->isNew() ||
+                !$processedFile->exists() ||
+                $processedFile->isOutdated() ||
+                $properties['tinypng'] == 0
+            ) {
+                $properties['tinypng'] = 0;
+                $processedFile->updateProperties($properties);
+                $this->processedFileRepository->update($processedFile);
+                self::$shrink = true;
+            } else {
+                self::$shrink = false;
+            }
+        }
+    }
 
-	/**
-	 * Post
-	 *
-	 * @param Resource\Service\FileProcessingService $fileProcessingService
-	 * @param Resource\Driver\DriverInterface $driver
-	 * @param Resource\ProcessedFile $processedFile
-	 * @param Resource\FileInterface $file
-	 * @param string $context
-	 * @param array $configuration
-	 *
-	 * @return void
-	 */
-	function postFileProcess(
-		Resource\Service\FileProcessingService $fileProcessingService,
-		Resource\Driver\DriverInterface $driver,
-		Resource\ProcessedFile $processedFile,
-		Resource\FileInterface $file,
-		$context,
-		array $configuration
-	) {
-		if (self::$shrink) {
-			$tmpFile = GeneralUtility::tempnam($processedFile->getName(), $processedFile->getExtension());
-			$sourceFile = $processedFile->getForLocalProcessing(false);
+    /**
+     * Post
+     *
+     * @param Resource\Service\FileProcessingService $fileProcessingService
+     * @param Resource\Driver\DriverInterface        $driver
+     * @param Resource\ProcessedFile                 $processedFile
+     * @param Resource\FileInterface                 $file
+     * @param string                                 $context
+     * @param array                                  $configuration
+     *
+     * @return void
+     */
+    function postFileProcess(
+        Resource\Service\FileProcessingService $fileProcessingService,
+        Resource\Driver\DriverInterface $driver,
+        Resource\ProcessedFile $processedFile,
+        Resource\FileInterface $file,
+        $context,
+        array $configuration
+    ) {
+        if (self::$shrink) {
+            $tmpFile = GeneralUtility::tempnam($processedFile->getName(), $processedFile->getExtension());
+            $sourceFile = $processedFile->getForLocalProcessing(false);
 
-			$this->tinypngService->shrinkImage($sourceFile, $tmpFile);
+            $this->tinypngService->shrinkImage($sourceFile, $tmpFile);
 
-			$properties['reduction'] = filesize($sourceFile) - filesize($tmpFile);
+            $properties['reduction'] = filesize($sourceFile) - filesize($tmpFile);
 
-			$processedFile->updateWithLocalFile($tmpFile);
+            $processedFile->updateWithLocalFile($tmpFile);
 
-			$properties['tinypng'] = 1;
-			$processedFile->updateProperties($properties);
-			$this->processedFileRepository->update($processedFile);
-		}
-	}
+            $properties['tinypng'] = 1;
+            $processedFile->updateProperties($properties);
+            $this->processedFileRepository->update($processedFile);
+        }
+    }
 }
