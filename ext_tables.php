@@ -18,7 +18,8 @@ if (TYPO3_MODE === 'BE' && !(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_INSTALL)) {
 		],
 		[
 			'access' => 'user,group',
-			'icon'   => 'EXT:' . $_EXTKEY . '/ext_icon.png',
+			'icon'   => 'EXT:' . $_EXTKEY . '/ext_icon.'.
+			(\TYPO3\CMS\Core\Utility\GeneralUtility::compat_version('7.0') ? 'svg' : 'png'),
 			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Languages/locallang_backend.xlf',
 		]
 	);
