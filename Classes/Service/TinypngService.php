@@ -25,6 +25,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class TinypngService implements SingletonInterface
 {
 	/**
+	 * PNG mime-type
+	 */
+	const PNG = 'image/png';
+
+	/**
+	 * JPG mime-type
+	 */
+	const JPG = 'image/jpeg';
+
+	/**
 	 * Validate API
 	 *
 	 * @return mixed
@@ -50,17 +60,20 @@ class TinypngService implements SingletonInterface
 	 * @param string $source The source file path
 	 * @param string $target The target file path
 	 *
-	 * @return int
+	 * @return int|bool
 	 */
 	public function shrinkImage($source, $target = NULL)
 	{
-		$target = $target === NULL ? $source : $target;
-		$sourceData = GeneralUtility::getURL($source);
-		$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();
-		file_put_contents($target, $targetData);
-		$reduction = strlen($sourceData) - strlen($targetData);
-		unset($sourceData,$targetData);
-
-		return $reduction;
+		if (in_array(mime_content_type($source), array(self::JPG, self::PNG))) {
+			$target = $target === NULL ? $source : $target;
+			$sourceData = GeneralUtility::getURL($source);
+			$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();
+			file_put_contents($target, $targetData);
+			$reduction = strlen($sourceData) - strlen($targetData);
+			unset($sourceData,$targetData);
+			return $reduction;
+		} else {
+			return false;
+		}
 	}
 }
