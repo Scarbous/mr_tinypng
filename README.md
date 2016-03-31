@@ -16,3 +16,8 @@ EXT:mr_tinypng compresses your Images with through the tinypng-API.
 ## Why use it?
 
 It will speedUp your Website, after shrinking your images.
+
+## Support
+
+You can open an issue or use slack.
+https://typo3.slack.com/messages/ext-mr_tinypng/
