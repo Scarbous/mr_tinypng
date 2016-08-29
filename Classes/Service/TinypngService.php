@@ -43,7 +43,17 @@ class TinypngService implements SingletonInterface
 		try {
 			return \Tinify\validate();
 		} catch(\Tinify\Exception $e) {
-			return $e->getMessage();
+			 /** @var $logger \TYPO3\CMS\Core\Log\Logger */
+		        $logger = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager')->getLogger(__CLASS__);
+		        $logger->error(
+		            'Tinify Exception! Please check your API-Key!',
+		            array(
+		                'Exception code' => $e->getCode(),
+		                'Exception message' => $e->getMessage(),
+		                'Exception trace' => $e->getTrace(),
+		            )
+		        );
+		        return $e->getMessage();
 		}
 	}
 
@@ -64,16 +74,31 @@ class TinypngService implements SingletonInterface
 	 */
 	public function shrinkImage($source, $target = NULL)
 	{
-		if (in_array(mime_content_type($source), array(self::JPG, self::PNG))) {
-			$target = $target === NULL ? $source : $target;
-			$sourceData = GeneralUtility::getURL($source);
-			$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();
-			file_put_contents($target, $targetData);
-			$reduction = strlen($sourceData) - strlen($targetData);
-			unset($sourceData,$targetData);
-			return $reduction;
-		} else {
+		
+	    	try {
+			if (in_array(mime_content_type($source), array(self::JPG, self::PNG))) {
+				$target = $target === NULL ? $source : $target;
+				$sourceData = GeneralUtility::getURL($source);
+				$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();
+				file_put_contents($target, $targetData);
+				$reduction = strlen($sourceData) - strlen($targetData);
+				unset($sourceData,$targetData);
+				return $reduction;
+			} else {
+				return false;
+			}
+	    	} catch (\Tinify\Exception $e){
+			/** @var $logger \TYPO3\CMS\Core\Log\Logger */
+			$logger = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager')->getLogger(__CLASS__);
+			$logger->error(
+				'Tinify Exception!',
+				array(
+					'Exception code' => $e->getCode(),
+					'Exception message' => $e->getMessage(),
+					'Exception trace' => $e->getTrace(),
+				)
+			);
 			return false;
-		}
+	        }
 	}
 }

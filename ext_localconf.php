@@ -30,7 +30,16 @@ if (!empty($extConfig['tinypngApiKey'])) {
 		);
 
 	} catch (\Tinify\Exception $e) {
-
+		 /** @var $logger \TYPO3\CMS\Core\Log\Logger */
+	        $logger = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager')->getLogger(__CLASS__);
+	        $logger->error(
+	            'Tinify Exception! Please check your API-Key!',
+	            array(
+	                'Exception code' => $e->getCode(),
+	                'Exception message' => $e->getMessage(),
+	                'Exception trace' => $e->getTrace(),
+	            )
+	        );
 	}
 }
 
