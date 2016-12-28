@@ -94,7 +94,7 @@ class FileProcessingService {
 		$testi = $file->getMimeType();
 		// optimize only FE images
 		if ($context == 'Image.CropScaleMask' && TYPO3_MODE !== 'BE' &&
-			($file->getMimeType() == TinypngService::PNG || $file->getMimeType() == TinypngService::JPG)
+			in_array($file->getMimeType(), TinypngService::getAllowedMimeTypes())
 		) {
 			$properties = $processedFile->getProperties();
 			if (
