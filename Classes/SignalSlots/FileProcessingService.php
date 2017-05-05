@@ -134,7 +134,7 @@ class FileProcessingService {
 		$context,
 		array $configuration
 	) {
-		if (self::$shrink) {
+		if (self::$shrink && ($file->getMimeType() == 'image/png' || $file->getMimeType() == 'image/jpeg')) {
 			$tmpFile = GeneralUtility::tempnam($processedFile->getName(), $processedFile->getExtension());
 
 			$sourceFile = $processedFile->getForLocalProcessing(false);
