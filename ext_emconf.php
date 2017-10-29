@@ -19,7 +19,7 @@ $EM_CONF[$_EXTKEY] = array (
 	'author_company' => '',
 	'state' => 'beta',
 	'clearCacheOnLoad' => 0,
-	'version' => '0.3.3',
+	'version' => '0.3.4',
 	'constraints' =>
 	array (
 		'depends' =>
