@@ -47,8 +47,8 @@ class BackendController extends ActionController
 	function indexAction()
 	{
 		$reduction = $this->processedFileRepository->getReduction();
-		$shrunkenFiles = $this->processedFileRepository->countShrunken();
-		$notShrunkenFiles = $this->processedFileRepository->countNotShrunken();
+		$reducedFiles = $this->processedFileRepository->countReduced();
+		$notReducedFiles = $this->processedFileRepository->countNotReduced();
 
 
 		$this->view->assignMultiple([
@@ -56,8 +56,8 @@ class BackendController extends ActionController
 				'validate'      => $this->tinypngService->validate(),
 				'compressionCount' => $this->tinypngService->compressionCount(),
 			],
-			'shrunkenFiles'    => $shrunkenFiles,
-			'notShrunkenFiles' => $notShrunkenFiles,
+			'reducedFiles'    => $reducedFiles,
+			'notReducedFiles' => $notReducedFiles,
 			'reduction'        => $reduction
 		]);
 	}

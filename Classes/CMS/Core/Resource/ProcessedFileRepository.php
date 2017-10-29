@@ -1,4 +1,5 @@
 <?php
+
 namespace Scarbous\MrTinypng\CMS\Core\Resource;
 
 /*
@@ -14,7 +15,9 @@ namespace Scarbous\MrTinypng\CMS\Core\Resource;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 /**
  * Class ProcessedFileRepository
@@ -22,78 +25,142 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  * @package Scarbous\MrTinypng\CMS\Core\Resource
  * @author Sascha Heilmeier <s.heilmeier@misterknister.com>
  */
-class ProcessedFileRepository extends \TYPO3\CMS\Core\Resource\ProcessedFileRepository {
-	/**
-	 * Get all shrunken elements
-	 *
-	 * @return array|\TYPO3\CMS\Extbase\Persistence\QueryResultInterface
-	 */
-	public function findShrunken(){
+class ProcessedFileRepository extends \TYPO3\CMS\Core\Resource\ProcessedFileRepository
+{
 
-		$whereClause = 'tinypng=1';
-		$rows = $this->databaseConnection->exec_SELECTgetRows('*', $this->table, $whereClause);
+    private function reducedQuery()
+    {
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder->addSelect('*')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'reduced',
+                    $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'reduce_it',
+                    $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+                )
+            );
 
-		$itemList = array();
-		if ($rows !== null) {
-			foreach ($rows as $row) {
-				$itemList[] = $this->createDomainObject($row);
-			}
-		}
-		return $itemList;
-	}
+        return $queryBuilder;
+    }
 
-	/**
-	 * Get all not shrunken elements
-	 *
-	 * @return array|\TYPO3\CMS\Extbase\Persistence\QueryResultInterface
-	 */
-	public function findNotShrunken(){
+    /**
+     * Get all reduced elements
+     *
+     * @return ObjectStorage
+     */
+    public function findReduced()
+    {
+        $queryBuilder = $this->reducedQuery();
 
-		$whereClause = 'tinypng=0';
-		$rows = $this->databaseConnection->exec_SELECTgetRows('*', $this->table, $whereClause);
+        $rows = $queryBuilder->execute();
 
-		$itemList = array();
-		if ($rows !== null) {
-			foreach ($rows as $row) {
-				$itemList[] = $this->createDomainObject($row);
-			}
-		}
-		return $itemList;
-	}
+        $itemList = new ObjectStorage();
+        if ($rows !== null) {
+            foreach ($rows as $row) {
+                $itemList->attach($this->createDomainObject($row));
+            }
+        }
 
-	/**
-	 * Count shrunken elements
-	 *
-	 * @return int
-	 */
-	public function countShrunken(){
+        return $itemList;
+    }
 
-		$whereClause = 'tinypng=1';
-		$row = $this->databaseConnection->exec_SELECTgetSingleRow('COUNT(*) AS files ', $this->table, $whereClause);
-		return $row['files'];
-	}
+    /**
+     * @return \TYPO3\CMS\Core\Database\Query\QueryBuilder
+     */
+    private function notReducedQuery()
+    {
+        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder->addSelect('*')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'reduced',
+                    $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq(
+                    'reduce_it',
+                    $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
+                )
+            );
 
-	/**
-	 * Count not shrunken elements
-	 *
-	 * @return int
-	 */
-	public function countNotShrunken(){
+        return $queryBuilder;
+    }
 
-		$whereClause = 'tinypng=0';
-		$row = $this->databaseConnection->exec_SELECTgetSingleRow('COUNT(*) AS files ', $this->table, $whereClause);
-		return $row['files'];
-	}
+    /**
+     * Get all not reduced elements
+     *
+     * @param int $limit
+     *
+     * @return ObjectStorage
+     */
+    public function findNotReduced($limit = 0)
+    {
+        $queryBuilder = $this->notReducedQuery();
+        if ($limit > 0) {
+            $queryBuilder->setMaxResults($limit);
+        }
+        $rows = $queryBuilder->execute();
 
-	/**
-	 * Get reduction
-	 *
-	 * @return int
-	 */
-	public function getReduction(){
+        $itemList = new ObjectStorage();
+        if ($rows !== null) {
+            foreach ($rows as $row) {
+                $itemList->attach($this->createDomainObject($row));
+            }
+        }
 
-		$whereClause = 'tinypng=1';
-		$row = $this->databaseConnection->exec_SELECTgetSingleRow('SUM(reduction) AS reduction', $this->table, $whereClause);
-		return $row['reduction'];
-	}
+        return $itemList;
+    }
+
+    /**
+     * Count reduced elements
+     *
+     * @return int
+     */
+    public function countReduced()
+    {
+        $queryBuilder = $this->reducedQuery();
+
+        return $queryBuilder->execute()->rowCount();
+    }
+
+    /**
+     * Count not reduced elements
+     *
+     * @return int
+     */
+    public function countNotReduced()
+    {
+        $queryBuilder = $this->notReducedQuery();
+
+        return $queryBuilder->execute()->rowCount();
+    }
+
+    /**
+     * Get reduction
+     *
+     * @return int
+     */
+    public function getReduction()
+    {
+        $queryBuilder = $this->reducedQuery();
+        $row = $queryBuilder->addSelectLiteral($queryBuilder->expr()->sum('reduction', 'reduction'))
+            ->execute()
+            ->fetch();
+
+        return $row['reduction'];
+    }
+
+
+    /**
+     * @return \TYPO3\CMS\Core\Database\Query\QueryBuilder
+     */
+    private function getQueryBuilder()
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($this->table);
+        $queryBuilder->from($this->table);
+
+        return $queryBuilder;
+    }
 }

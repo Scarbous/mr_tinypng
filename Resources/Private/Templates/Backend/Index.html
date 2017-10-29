@@ -30,14 +30,13 @@
     </ul>
 
     <div class="progress" id="progressbar">
-        <div class="progress-bar progress-bar-success" title="{shrunkenFiles} shrunken"
-             aria-valuenow="{shrunkenFiles}"
-             aria-valuemin="0" aria-valuemax="100">
-            <span class="sr-only">{shrunkenFiles} shrunken</span>
+        <div class="progress-bar progress-bar-success" title="{reducedFiles} reduced"
+             aria-valuenow="{reducedFiles}" aria-valuemin="0" aria-valuemax="100">
+            {reducedFiles} <span class="sr-only">reduced</span>
         </div>
-        <div class="progress-bar progress-bar-warning" title="{notShrunkenFiles} not shrunken"
-             aria-valuenow="{notShrunkenFiles}" aria-valuemin="0" aria-valuemax="100">
-            <span class="sr-only">{notShrunkenFiles} not shrunken</span>
+        <div class="progress-bar progress-bar-warning" title="{notReducedFiles} not reduced"
+             aria-valuenow="{notReducedFiles}" aria-valuemin="0" aria-valuemax="100">
+            {notReducedFiles} <span class="sr-only">not reduced</span>
         </div>
     </div>
 

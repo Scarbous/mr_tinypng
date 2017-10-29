@@ -1,26 +1,33 @@
 <?php
-if (!defined('TYPO3_MODE')) {
-	die ('Access denied.');
-}
+/**
+ * @var string $_EXTKEY
+ */
+defined('TYPO3_MODE') or die('Access denied.');
 
-if (TYPO3_MODE === 'BE' && !(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_INSTALL)) {
+call_user_func(function ($extKey) {
 
-	/**
-	 * Register Backend Module
-	 */
-	\TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-		'Scarbous.' . $_EXTKEY,
-		'tools',
-		'backend',
-		'',
-		[
-			'Backend' => 'index',
-		],
-		[
-			'access' => 'user,group',
-			'icon'   => 'EXT:' . $_EXTKEY . '/ext_icon.'.
-			(\TYPO3\CMS\Core\Utility\GeneralUtility::compat_version('7.0') ? 'svg' : 'png'),
-			'labels' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Languages/locallang_backend.xlf',
-		]
-	);
-}
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][ $extKey ] =
+        \Scarbous\MrTinypng\CMS\Command\TinyPngCommandController::class;
+
+    if (TYPO3_MODE === 'BE' && !(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_INSTALL)) {
+
+        /**
+         * Register Backend Module
+         */
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
+            'Scarbous.' . $extKey,
+            'tools',
+            'backend',
+            '',
+            [
+                'Backend' => 'index',
+            ],
+            [
+                'access' => 'user,group',
+                'icon' => 'EXT:' . $extKey . '/ext_icon.' .
+                    (\TYPO3\CMS\Core\Utility\GeneralUtility::compat_version('7.0') ? 'svg' : 'png'),
+                'labels' => 'LLL:EXT:' . $extKey . '/Resources/Private/Languages/locallang_backend.xlf',
+            ]
+        );
+    }
+}, $_EXTKEY);
