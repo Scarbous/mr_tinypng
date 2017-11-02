@@ -1,2 +1,5 @@
 # cat=basic/11; type=string; label=tinypng API Key
 tinypngApiKey=
+
+# cat=basic/11; type=options[both PNG and JPG=image/png|image/jpeg, PNG only=image/png, JPG only=image/jpeg]; label=File types to tinify
+mimeTypes=image/png;image/jpeg

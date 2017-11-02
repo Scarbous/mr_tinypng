@@ -24,15 +24,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class TinypngService implements SingletonInterface
 {
-	/**
-	 * PNG mime-type
-	 */
-	const PNG = 'image/png';
-
-	/**
-	 * JPG mime-type
-	 */
-	const JPG = 'image/jpeg';
 
 	/**
 	 * Validate API
@@ -76,7 +67,7 @@ class TinypngService implements SingletonInterface
 	{
 		
 	    	try {
-			if (in_array(mime_content_type($source), array(self::JPG, self::PNG))) {
+			if (in_array(mime_content_type($source), self::getAllowedMimeTypes())) {
 				$target = $target === NULL ? $source : $target;
 				$sourceData = GeneralUtility::getURL($source);
 				$targetData = \Tinify\fromBuffer($sourceData)->toBuffer();
@@ -101,4 +92,14 @@ class TinypngService implements SingletonInterface
 			return false;
 	        }
 	}
+
+    /**
+     * Get list of allowed mime types from extension configuration
+     * 
+     * @return array
+     */
+    public static function getAllowedMimeTypes() {
+        $extConfig = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mr_tinypng']);
+        return \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode('|', $extConfig['mimeTypes'], TRUE);
+    }
 }
