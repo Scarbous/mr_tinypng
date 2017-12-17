@@ -6,10 +6,10 @@ defined('TYPO3_MODE') or die('Access denied.');
 
 call_user_func(function ($extKey) {
 
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][ $extKey ] =
-        \Scarbous\MrTinypng\CMS\Command\TinyPngCommandController::class;
-
     if (TYPO3_MODE === 'BE' && !(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_INSTALL)) {
+
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][$extKey] =
+            \Scarbous\MrTinypng\CMS\Command\TinyPngCommandController::class;
 
         /**
          * Register Backend Module

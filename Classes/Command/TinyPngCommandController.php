@@ -25,9 +25,11 @@ class TinyPngCommandController extends CommandController
     protected $tinypngService;
 
     /**
+     * Shrink images
      * @param int $limit
+     * @return void
      */
-    function shrinkCommand($limit = 10)
+    public function shrinkCommand($limit = 10)
     {
         $sumSourceSize = 0;
         $sumNewSize = 0;

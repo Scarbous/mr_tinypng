@@ -35,6 +35,15 @@ class TinypngService implements SingletonInterface
      */
     const JPG = 'image/jpeg';
 
+    function __construct()
+    {
+        require_once(
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('mr_tinypng') . 'Resources/Private/Libraries/autoload.php'
+        );
+        $extConfig = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['mr_tinypng']);
+        \Tinify\setKey($extConfig['tinypngApiKey']);
+    }
+
     /**
      * Validate API
      *
@@ -77,7 +86,9 @@ class TinypngService implements SingletonInterface
      */
     public function reduceImage($source, $target = null)
     {
-
+        if (!file_exists($source)) {
+            return false;
+        }
         try {
             if (in_array(mime_content_type($source), [self::JPG, self::PNG])) {
                 $target = $target === null ? $source : $target;
