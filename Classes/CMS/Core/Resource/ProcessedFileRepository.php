@@ -82,7 +82,8 @@ class ProcessedFileRepository extends \TYPO3\CMS\Core\Resource\ProcessedFileRepo
                 $queryBuilder->expr()->eq(
                     'reduce_it',
                     $queryBuilder->createNamedParameter(1, \PDO::PARAM_INT)
-                )
+                ),
+                $queryBuilder->expr()->isNotNull('name')
             );
 
         return $queryBuilder;
