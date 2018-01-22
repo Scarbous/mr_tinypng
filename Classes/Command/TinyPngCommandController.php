@@ -1,6 +1,6 @@
 <?php
 
-namespace Scarbous\MrTinypng\CMS\Command;
+namespace Scarbous\MrTinypng\Command;
 
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
